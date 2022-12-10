@@ -22,6 +22,26 @@
 
 ;;
 
+;;; Commands:
+;;
+;; Below are complete command list:
+;;
+;;  `html2org-fetch-url'
+;;    Fetch URL.
+;;  `html2org'
+;;    Convert HTML buffer/string/file and return as org string.
+;;
+;;; Customizable Options:
+;;
+;; Below are customizable option list:
+;;
+;;  `html2org-shift-heading-level'
+;;    Shift heading levels by a positive or negative integer.
+;;    default = 0
+;;  `html2org-retrieve-command'
+;;    Command for fetch web url.
+;;    default = "curl"
+
 ;;; Code:
 
 (require 'shr)
@@ -39,6 +59,11 @@ Headings cannot have a level less than 1,
 so a heading that would be shifted below level 1 becomes a regular paragraph."
   :group 'html2org
   :type 'int)
+
+(defcustom html2org-retrieve-command "curl"
+  "Command for fetch web url."
+  :group 'html2org
+  :type 'string)
 
 (defun async-shell-command-to-string (command callback)
   "Execute shell command COMMAND asynchronously in the background.
@@ -66,7 +91,7 @@ Synopsis:(async-shell-command-to-string \"echo hello\" (lambda (s) (message \"RE
   "Fetch URL."
   (interactive "sUrl: ")
   (async-shell-command-to-string
-   (format "curl %s" url)
+   (format "%s %s" html2org-retrieve-command url)
    (lambda (html) (html2org html))))
 
 (defun html2org (&optional html)
@@ -83,8 +108,7 @@ Optional argument HTML:
             (shr-use-fonts nil)
             (shr-external-rendering-functions
              '((figure . shr-tag-figure)
-               (dt . shr-tag-dt)
-               (li . shr-tag-li)
+               (hr . html2org-tag-hr)
                (p . html2org-tag-p)
                (a . html2org-tag-a)
                (h6 . html2org-tag-h6)
@@ -93,16 +117,9 @@ Optional argument HTML:
                (h3 . html2org-tag-h3)
                (h2 . html2org-tag-h2)
                (h1 . html2org-tag-h1)
-               (svg . shr-tag-svg)
-               (strong . shr-tag-strong)
-               (u . shr-tag-u)
-               (em . shr-tag-em)
-               (pre . shr-tag-pre)
                (title . html2org-tag-title)
                (b . html2org-tag-b)
-               (img . shr-tag-img)
-               (ul . shr-tag-ul)
-               (li . shr-tag-li))))
+               )))
         (html2org-buffer html)))))
 
 (defun html2org-buffer (html)
@@ -184,6 +201,11 @@ Argument DOM dom."
   "Parse tag b.
 Argument DOM dom."
   (insert (format "*%s*" (dom-text dom))))
+
+(defun html2org-tag-hr (_dom)
+  "Parse tag hr.
+Argument DOM dom."
+  (insert "-----"))
 
 (provide 'html2org)
 ;;; html2org.el ends here
