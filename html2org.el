@@ -103,10 +103,12 @@ Optional argument HTML:
   (let* ((html (or html (buffer-string))))
     (let ((shr-bullet "- ")
           (shr-table-vertical-line "|")
+          (shr-stylesheet '((border-collapse . "separate")))
           (shr-width 100000)
           (shr-use-fonts nil)
           (shr-external-rendering-functions
-           '((hr . html2org-tag-hr)
+           '((li . html2org-tag-li)
+             (hr . html2org-tag-hr)
              (a . html2org-tag-a)
              (h6 . html2org-tag-h6)
              (h5 . html2org-tag-h5)
@@ -130,7 +132,6 @@ Optional argument HTML:
     (goto-char (point-min))
     (setq buffer-read-only nil)
     (org-mode)))
-
 
 (defun html2org-tag-title (dom)
   "Parse tag title.
@@ -202,6 +203,35 @@ Argument DOM dom."
   "Parse tag hr.
 Argument DOM dom."
   (insert "-----"))
+
+
+(defun html2org-tag-li (dom)
+  "Parse tag li DOM."
+  (shr-ensure-newline)
+  (let ((start (point)))
+    (let* ((bullet
+            (if (numberp shr-list-mode)
+                (prog1
+                    (format "%d. " shr-list-mode)
+                  (setq shr-list-mode (1+ shr-list-mode)))
+              (car shr-internal-bullet)))
+           (width
+            (if (numberp shr-list-mode)
+                (shr-string-pixel-width bullet)
+              (cdr shr-internal-bullet))))
+      (insert bullet)
+      (shr-mark-fill start)
+      (let ((shr-indentation (+ shr-indentation width)))
+        (put-text-property start
+                           (1+ start)
+                           'shr-continuation-indentation shr-indentation)
+        (put-text-property start
+                           (1+ start)
+                           'shr-prefix-length
+                           (length bullet))
+        (shr-generic dom))))
+  (unless (bolp) (insert "\n")))
+
 
 (provide 'html2org)
 ;;; html2org.el ends here
