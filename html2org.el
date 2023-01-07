@@ -47,6 +47,7 @@
 (require 'shr)
 (require 'org)
 (require 'gnus-art)
+(require 'language-detection)
 
 (defgroup html2org nil "Convert html to org.")
 
@@ -107,7 +108,10 @@ Optional argument HTML:
           (shr-width 100000)
           (shr-use-fonts nil)
           (shr-external-rendering-functions
-           '((li . html2org-tag-li)
+           '((pre . html2org-tag-pre)
+             (code . html2org-tag-code)
+             (img . html2org-tag-img)
+             (li . html2org-tag-li)
              (hr . html2org-tag-hr)
              (a . html2org-tag-a)
              (h6 . html2org-tag-h6)
@@ -232,6 +236,24 @@ Argument DOM dom."
         (shr-generic dom))))
   (unless (bolp) (insert "\n")))
 
+
+(defun html2org-tag-img (dom &optional _url)
+  "Parse img DOM."
+  (let ((url (dom-attr dom 'src)))
+    (insert (format "[[%s]]" url))))
+
+(defun html2org-tag-pre (dom)
+  "Parse img pre DOM."
+  (let ((code (dom-texts dom)))
+
+    (insert
+     (format "#+begin_src %s" (language-detection-string code)))
+    (shr-tag-pre dom)
+    (insert "#+end_src")))
+
+(defun html2org-tag-code (dom)
+  "Parse img code DOM."
+  (shr-tag-code dom))
 
 (provide 'html2org)
 ;;; html2org.el ends here
