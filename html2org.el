@@ -245,11 +245,12 @@ Argument DOM dom."
 (defun html2org-tag-pre (dom)
   "Parse img pre DOM."
   (let ((code (dom-texts dom)))
-
+    (shr-ensure-newline)
     (insert
      (format "#+begin_src %s" (language-detection-string code)))
     (shr-tag-pre dom)
-    (insert "#+end_src")))
+    (insert "#+end_src")
+    (shr-ensure-newline)))
 
 (defun html2org-tag-code (dom)
   "Parse img code DOM."
