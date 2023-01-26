@@ -108,7 +108,8 @@ Optional argument HTML:
           (shr-width 100000)
           (shr-use-fonts nil)
           (shr-external-rendering-functions
-           '((pre . html2org-tag-pre)
+           '((blockquote . html2org-tag-blockquote)
+             (pre . html2org-tag-pre)
              (code . html2org-tag-code)
              (img . html2org-tag-img)
              (li . html2org-tag-li)
@@ -255,6 +256,14 @@ Argument DOM dom."
 (defun html2org-tag-code (dom)
   "Parse img code DOM."
   (shr-tag-code dom))
+
+(defun html2org-tag-blockquote (dom)
+  "Parse blockquote DOM."
+  (shr-ensure-newline)
+  (insert "#+begin_quote \n")
+  (shr-generic dom)
+  (insert "#+end_quote")
+  (shr-ensure-newline))
 
 (provide 'html2org)
 ;;; html2org.el ends here
