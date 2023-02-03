@@ -202,7 +202,9 @@ Argument DOM dom."
 (defun html2org-tag-b (dom)
   "Parse tag b.
 Argument DOM dom."
-  (insert (format "*%s*" (dom-text dom))))
+  (insert "*")
+  (shr-generic dom)
+  (insert "*"))
 
 (defun html2org-tag-hr (_dom)
   "Parse tag hr.
