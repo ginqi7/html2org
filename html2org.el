@@ -122,7 +122,8 @@ Optional argument HTML:
              (h2 . html2org-tag-h2)
              (h1 . html2org-tag-h1)
              (title . html2org-tag-title)
-             (b . html2org-tag-b))))
+             (b . html2org-tag-b)
+             (strong . html2org-tag-b))))
       (html2org-buffer html))))
 
 (defun html2org-buffer (html)
