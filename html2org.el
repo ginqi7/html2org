@@ -203,9 +203,11 @@ Argument DOM dom."
 (defun html2org-tag-b (dom)
   "Parse tag b.
 Argument DOM dom."
+  (html2org-ensure-blank)
   (insert "*")
   (shr-generic dom)
-  (insert "*"))
+  (insert "*")
+  (insert " "))
 
 (defun html2org-tag-hr (_dom)
   "Parse tag hr.
@@ -267,6 +269,13 @@ Argument DOM dom."
   (shr-generic dom)
   (insert "#+end_quote")
   (shr-ensure-newline))
+
+(defun html2org-ensure-blank()
+  "Ensure there are a blank or in line begin."
+  (let ((before-string (string (preceding-char))))
+    (unless (or (bolp) (string= " " before-string) (insert " "))
+      )))
+
 
 (provide 'html2org)
 ;;; html2org.el ends here
