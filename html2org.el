@@ -1,10 +1,8 @@
-;;; html2org.el --- Parse Html to org mode with shr.   -*- lexical-binding: t; -*-
+;;; html2org.el --- Convert HTML to org mode.        -*- lexical-binding: t; -*-
 
-;; Copyright (C) 2022  Qiqi Jin
+;; Copyright (C) 2023  Qiqi Jin
 
 ;; Author: Qiqi Jin <ginqi7@gmail.com>
-;; Keywords: lisp
-
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
 ;; the Free Software Foundation, either version 3 of the License, or
@@ -28,8 +26,13 @@
 ;;
 ;;  `html2org-fetch-url'
 ;;    Fetch URL.
+;;    Keybinding: M-x html2org-fetch-url
 ;;  `html2org'
 ;;    Convert HTML buffer/string/file and return as org string.
+;;    Keybinding: M-x html2org
+;;  `html2org-paste-from-clipboard'
+;;    In MacOs: 1. copy contents from browser.
+;;    Keybinding: M-x html2org-paste-from-clipboard
 ;;
 ;;; Customizable Options:
 ;;
@@ -42,13 +45,26 @@
 ;;    Command for fetch web url.
 ;;    default = "curl"
 
+;;; Installation:
+;; Manual:
+;; Download the source code and put it wherever you like, e.g. into
+;; ~/.emacs.d/html2org/
+;; ```
+;; git clone git@github.com:ginqi7/html2org.git
+;; ```
+;; Add the downloaded directory to the load path:
+;; ```
+;; (add-to-list 'load-path "~/.emacs.d/html2org/")
+;; (require 'html2org)
+;; ```
+;;
 ;;; Code:
+
 
 (require 'shr)
 (require 'org)
 (require 'gnus-art)
 (require 'language-detection)
-
 (defgroup html2org nil "Convert html to org.")
 
 (defcustom html2org-shift-heading-level 0
@@ -126,15 +142,22 @@ Optional argument HTML:
              (strong . html2org-tag-b))))
       (html2org-buffer html))))
 
+(defun html2org-text (html)
+  "Convert HTML to org mode text."
+  (with-temp-buffer
+    (shr-insert-document
+     (with-temp-buffer
+       (insert html)
+       (libxml-parse-html-region (point-min) (point-max))))
+    (buffer-substring-no-properties (point-min) (point-max))))
+
+
 (defun html2org-buffer (html)
   "Convert HTML to org mode buffer."
   (pop-to-buffer "*html2org*")
   (with-current-buffer "*html2org*"
     (erase-buffer)
-    (shr-insert-document
-     (with-temp-buffer
-       (insert html)
-       (libxml-parse-html-region (point-min) (point-max))))
+    (insert (html2org-text html))
     (goto-char (point-min))
     (setq buffer-read-only nil)
     (org-mode)))
@@ -276,6 +299,35 @@ Argument DOM dom."
     (unless (or (bolp) (string= " " before-string) (insert " "))
       )))
 
+(defun html-from-clipboard ()
+  "Get HTML from clipboard for macOS."
+  (let* ((result
+          (condition-case err
+              ;; hex-encoded string:
+              ;;           < m e t a ......>
+              ;; «data HTML3C6D657461......3E»
+              ;;(do-applescript "the clipboard as «class HTML»")
+              (shell-command-to-string "osascript -e 'the clipboard as \"HTML\"'")
+            (error
+             ;; assume it's user's fault
+             (user-error "Can't get HTML data from the clipboard: %s"
+                         (error-message-string err)))))
+         (data (substring result 10 -1))
+         (html
+          (decode-coding-string
+           (apply #'unibyte-string
+                  (mapcar
+                   (lambda (x) (string-to-number x 16))
+                   (seq-partition data 2)))
+           'utf-8)))
+    html))
+
+(defun html2org-paste-from-clipboard ()
+  "In MacOs: 1. copy contents from browser.
+2. convert html to org mode.
+3. paste org contents."
+  (interactive)
+  (insert (html2org-text (html-from-clipboard))))
 
 (provide 'html2org)
 ;;; html2org.el ends here
