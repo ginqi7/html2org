@@ -18,7 +18,20 @@
 
 ;;; Commentary:
 
+;;; Installation:
 ;;
+;; Manual:
+;;
+;; Download the source code and put it wherever you like, e.g. into
+;; ~/.emacs.d/html2org/
+;; ```
+;; git clone git@github.com:ginqi7/html2org.git
+;; ```
+;; Add the downloaded directory to the load path:
+;; ```
+;; (add-to-list 'load-path "~/.emacs.d/html2org/")
+;; (require 'html2org)
+;; ```
 
 ;;; Commands:
 ;;
@@ -45,18 +58,6 @@
 ;;    Command for fetch web url.
 ;;    default = "curl"
 
-;;; Installation:
-;; Manual:
-;; Download the source code and put it wherever you like, e.g. into
-;; ~/.emacs.d/html2org/
-;; ```
-;; git clone git@github.com:ginqi7/html2org.git
-;; ```
-;; Add the downloaded directory to the load path:
-;; ```
-;; (add-to-list 'load-path "~/.emacs.d/html2org/")
-;; (require 'html2org)
-;; ```
 ;;
 ;;; Code:
 
