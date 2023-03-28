@@ -217,12 +217,14 @@ Argument DOM dom."
 Argument DOM dom."
   (let ((link (dom-attr dom 'href))
         (text (dom-text dom)))
-    (when (html2org-validate-link-p link)
-      (insert "[")
-      (insert (format "[%s]" link))
-      (when (> (length text) 0)
-        (insert (format "[%s]" text)))
-      (insert "]"))))
+    (if (html2org-validate-link-p link)
+        (progn
+          (insert "[")
+          (insert (format "[%s]" link))
+          (when (> (length text) 0)
+            (insert (format "[%s]" text)))
+          (insert "]"))
+      (when (> (length text) 0) (insert text)))))
 
 (defun html2org-tag-b (dom)
   "Parse tag b.
