@@ -332,5 +332,16 @@ Argument DOM dom."
   (interactive)
   (insert (html2org-text (html-from-clipboard))))
 
+(defun html2org-paste-from-clipboard-html ()
+  "1. copy html contents from browser.
+2. convert html to org mode.
+3. paste org contents."
+  (interactive)
+  (insert
+   (html2org-text
+    (with-temp-buffer
+      (yank)
+      (buffer-substring-no-properties (point-min) (point-max))))))
+
 (provide 'html2org)
 ;;; html2org.el ends here
