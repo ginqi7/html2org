@@ -83,6 +83,8 @@ so a heading that would be shifted below level 1 becomes a regular paragraph."
   :group 'html2org
   :type 'string)
 
+(defvar html2org-base-url nil)
+
 (defun async-shell-command-to-string (command callback)
   "Execute shell command COMMAND asynchronously in the background.
 Return the temporary output buffer which command is writing to
@@ -108,9 +110,10 @@ Synopsis:(async-shell-command-to-string \"echo hello\" (lambda (s) (message \"RE
 (defun html2org-fetch-url (url)
   "Fetch URL."
   (interactive "sUrl: ")
+  (setq html2org-base-url url)
   (async-shell-command-to-string
    (format "%s %s" html2org-retrieve-command url)
-   (lambda (html) (html2org html))))
+   (lambda (html) (html2org html) (setq html2org-base-url nil))))
 
 (defun html2org (&optional html)
   "Convert HTML buffer/string/file and return as org string.
@@ -215,7 +218,7 @@ Argument DOM dom."
 (defun html2org-tag-a (dom)
   "Parse tag a.
 Argument DOM dom."
-  (let ((link (dom-attr dom 'href))
+  (let ((link (shr-expand-url (dom-attr dom 'href) html2org-base-url))
         (text (dom-text dom)))
     (if (html2org-validate-link-p link)
         (progn
@@ -299,8 +302,8 @@ Argument DOM dom."
 (defun html2org-ensure-blank()
   "Ensure there are a blank or in line begin."
   (let ((before-string (string (preceding-char))))
-    (unless (or (bolp) (string= " " before-string) (insert " "))
-      )))
+    (unless (or (bolp) (string= " " before-string) (insert " ")))))
+
 
 (defun html-from-clipboard ()
   "Get HTML from clipboard for macOS."
