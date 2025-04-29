@@ -22,15 +22,15 @@ Add the downloaded directory to the load path:
 
 ** Below are complete command list
 
-- `html2org-fetch-url`
+- =html2org-fetch-url=
    + Fetch URL.
    + Keybinding: M-x html2org-fetch-url
 
-- `html2org`
+- =html2org=
    + Convert HTML buffer/string/file and return as org string.
    + Keybinding: M-x html2org
 
-- `html2org-paste-from-clipboard`
+- =html2org-paste-from-clipboard=
    + In MacOs: 1. copy contents from browser.
    + Keybinding: M-x html2org-paste-from-clipboard
 
@@ -38,10 +38,10 @@ Add the downloaded directory to the load path:
 
 ** Below are customizable option list
 
-- `html2org-shift-heading-level`
+- =html2org-shift-heading-level=
    + Shift heading levels by a positive or negative integer.
    + default = 0
 
-- `html2org-retrieve-command`
+- =html2org-retrieve-command=
    + Command for fetch web url.
    + default = "curl"
